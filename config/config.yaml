@@ -1,0 +1,14 @@
+app:
+  name: "Scaffold API"
+  version: "1.0.0"
+
+http:
+  port: "8000"
+
+logger:
+  logLevel: "debug"
+
+database:
+  poolMax: ${POOL_MAX:2}
+  dbUrl: ${DB_URL:postgresql://root:root@localhost:5432/mydb?schema=sample}
+  dbTimezone: "UTC"
