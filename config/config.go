@@ -8,29 +8,33 @@ import (
 
 type (
 	Config struct {
-		App  App  `json:"app"`
-		HTTP HTTP `json:"http"`
-		Log  Log  `json:"logger"`
-		DB   DB   `json:"database"`
+		App  App
+		HTTP HTTP
+		Log  Log
+		DB   DB
 	}
 
 	App struct {
-		Name    string `json:"name"`
-		Version string `json:"version"`
+		Name    string
+		Version string
 	}
 
 	HTTP struct {
-		Port string `json:"port"`
+		Port string
 	}
 
 	Log struct {
-		Level string `json:"level"`
+		Level string
 	}
 
 	DB struct {
-		PoolMax  int    `json:"poolMax"`
-		DBUrl    string `json:"dbUrl"`
-		Timezone string `json:"dbTimezone"`
+		PoolMax  int
+		Timezone string
+		Username string
+		Password string
+		DBName   string
+		DBPort   int
+		SSLMode  string
 	}
 )
 

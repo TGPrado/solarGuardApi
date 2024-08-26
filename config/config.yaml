@@ -10,5 +10,9 @@ logger:
 
 database:
   poolMax: ${POOL_MAX:2}
-  dbUrl: ${DB_URL:postgresql://root:root@localhost:5432/mydb?schema=sample}
+  username: ${DB_USER:root}
+  password: ${DB_PASSWORD:root}
+  dbName: ${DB_NAME:localhost}
+  dbPort: ${DB_PORT:5432}
+  sslMode: ${DB_SSL:disable}
   dbTimezone: "UTC"
