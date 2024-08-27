@@ -13,10 +13,11 @@ import (
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	dsn := fmt.Sprintf(
-		"user=%s password=%s dbname=%s port=%d sslmode=%s",
+		"user=%s password=%s dbname=%s host=%s port=%d sslmode=%s",
 		cfg.DB.Username,
 		cfg.DB.Password,
 		cfg.DB.DBName,
+		cfg.DB.Host,
 		cfg.DB.DBPort,
 		cfg.DB.SSLMode)
 

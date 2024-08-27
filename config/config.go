@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	logger "github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -32,6 +32,7 @@ type (
 		Timezone string
 		Username string
 		Password string
+		Host     string
 		DBName   string
 		DBPort   int
 		SSLMode  string
@@ -46,17 +47,26 @@ func NewConfig() (*Config, error) {
 	viper.AddConfigPath("config")
 	viper.AutomaticEnv()
 
+	viper.BindEnv("database.poolMax", "POOL_MAX")
+	viper.BindEnv("database.username", "DB_USERNAME")
+	viper.BindEnv("database.password", "DB_PASSWORD")
+	viper.BindEnv("database.dbName", "DB_NAME")
+	viper.BindEnv("database.dbPort", "DB_PORT")
+	viper.BindEnv("database.host", "DB_HOST")
+	viper.BindEnv("database.poolsslModeMax", "DB_SSL")
+	viper.BindEnv("database.dbTimezone", "DB_TIMEZONE")
+
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Panic().Err(err).Msg("Error opening config file.")
+		logger.Panic().Err(err).Msg("Error opening config file.")
 	}
 
-	log.Info().Msg("Config file loaded successfully.")
+	logger.Info().Msg("Config file loaded successfully.")
 
 	var config Config
 	err = viper.Unmarshal(&config)
 	if err != nil {
-		log.Panic().Err(err).Msg("Unparsing config file.")
+		logger.Panic().Err(err).Msg("Unparsing config file.")
 	}
 
 	return &config, nil

@@ -8,11 +8,12 @@ http:
 logger:
   logLevel: "debug"
 
-database:
-  poolMax: ${POOL_MAX:2}
-  username: ${DB_USER:root}
-  password: ${DB_PASSWORD:root}
-  dbName: ${DB_NAME:localhost}
-  dbPort: ${DB_PORT:5432}
-  sslMode: ${DB_SSL:disable}
-  dbTimezone: "UTC"
+db:
+  poolMax: 2
+  username: "root"
+  password: "root"
+  dbName: "postgres"
+  host: "localhost"
+  dbPort: 5432
+  sslMode: "disable"
+  timezone: "UTC"
