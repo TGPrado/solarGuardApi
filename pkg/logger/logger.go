@@ -7,11 +7,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type Logger struct {
-	logger *zerolog.Logger
-}
-
-func New(level string) *Logger {
+func New(level string) *zerolog.Logger {
 	var l zerolog.Level
 	level = strings.ToLower(level)
 
@@ -35,7 +31,5 @@ func New(level string) *Logger {
 		CallerWithSkipFrameCount(zerolog.CallerSkipFrameCount + skipFrameCount).
 		Logger()
 
-	return &Logger{
-		logger: &logger,
-	}
+	return &logger
 }
