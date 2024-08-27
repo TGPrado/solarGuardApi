@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/TGPrado/GoScaffoldApi/config"
+	v1 "github.com/TGPrado/GoScaffoldApi/internal/routers/v1"
 	"github.com/TGPrado/GoScaffoldApi/pkg/database"
 	"github.com/TGPrado/GoScaffoldApi/pkg/logger"
 	httpServer "github.com/TGPrado/GoScaffoldApi/pkg/server"
@@ -16,12 +17,13 @@ import (
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
-	_, err := database.InitDB(cfg)
+	db, err := database.InitDB(cfg)
 	if err != nil {
 		l.Panic().Err(err).Msg("Error initializing database")
 	}
 
 	handler := gin.Default()
+	v1.NewRouter(handler, l, db)
 	httpServer := httpServer.New(handler, httpServer.Port(cfg.HTTP.Port))
 
 	if err := gracefulShutdown(httpServer, l); err != nil {
