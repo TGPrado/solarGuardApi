@@ -1,0 +1,38 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "description": "Retorna o status de saúde da aplicação",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllerV1.HealthCheckResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controllerV1.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -6,12 +6,15 @@ import (
 	"syscall"
 
 	"github.com/TGPrado/GoScaffoldApi/config"
+	_ "github.com/TGPrado/GoScaffoldApi/docs"
 	v1 "github.com/TGPrado/GoScaffoldApi/internal/routers/v1"
 	"github.com/TGPrado/GoScaffoldApi/pkg/database"
 	"github.com/TGPrado/GoScaffoldApi/pkg/logger"
 	httpServer "github.com/TGPrado/GoScaffoldApi/pkg/server"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Run(cfg *config.Config) {
@@ -23,7 +26,9 @@ func Run(cfg *config.Config) {
 	}
 
 	handler := gin.Default()
+	handler.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	v1.NewRouter(handler, l, db)
+
 	httpServer := httpServer.New(handler, httpServer.Port(cfg.HTTP.Port))
 
 	if err := gracefulShutdown(httpServer, l); err != nil {
