@@ -17,6 +17,7 @@ type (
 	App struct {
 		Name    string
 		Version string
+		Lang    string
 	}
 
 	HTTP struct {
@@ -28,14 +29,8 @@ type (
 	}
 
 	DB struct {
-		PoolMax  int
-		Timezone string
-		Username string
-		Password string
-		Host     string
-		DBName   string
-		DBPort   int
-		SSLMode  string
+		Region   string
+		Endpoint string
 	}
 )
 
@@ -47,14 +42,8 @@ func NewConfig() (*Config, error) {
 	viper.AddConfigPath("config")
 	viper.AutomaticEnv()
 
-	viper.BindEnv("database.poolMax", "POOL_MAX")
-	viper.BindEnv("database.username", "DB_USERNAME")
-	viper.BindEnv("database.password", "DB_PASSWORD")
-	viper.BindEnv("database.dbName", "DB_NAME")
-	viper.BindEnv("database.dbPort", "DB_PORT")
-	viper.BindEnv("database.host", "DB_HOST")
-	viper.BindEnv("database.poolsslModeMax", "DB_SSL")
-	viper.BindEnv("database.dbTimezone", "DB_TIMEZONE")
+	viper.BindEnv("database.region", "DB_REGION")
+	viper.BindEnv("database.endpoint", "DB_ENDPOINT")
 
 	err := viper.ReadInConfig()
 	if err != nil {

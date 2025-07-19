@@ -1,39 +1,104 @@
 package database
 
 import (
+	"context"
 	"fmt"
+	"log"
 
-	"github.com/TGPrado/GoScaffoldApi/config"
+	secrets "github.com/TGPrado/GuardIA/config"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-func InitDB(cfg *config.Config) (*gorm.DB, error) {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	dsn := fmt.Sprintf(
-		"user=%s password=%s dbname=%s host=%s port=%d sslmode=%s",
-		cfg.DB.Username,
-		cfg.DB.Password,
-		cfg.DB.DBName,
-		cfg.DB.Host,
-		cfg.DB.DBPort,
-		cfg.DB.SSLMode)
-
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func connectLocal(secrets *secrets.Config) (*dynamodb.Client, error) {
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(secrets.DB.Region),
+		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: "http://db:8000"}, nil
+			},
+		)),
+		config.WithCredentialsProvider(credentials.StaticCredentialsProvider{
+			Value: aws.Credentials{
+				AccessKeyID: "dummy", SecretAccessKey: "dummy", SessionToken: "dummy",
+				Source: "Credenciais fixas para ambiente local",
+			},
+		}),
+	)
 	if err != nil {
-		log.Panic().Err(err).Msg("Failed to connect to database")
+		return nil, fmt.Errorf("Erro ao carregar a configuração do SDK: %w", err)
+	}
+	return dynamodb.NewFromConfig(cfg), nil
+}
+
+func NewDynamoClient(secrets *secrets.Config, l *zerolog.Logger) (*dynamodb.Client, error) {
+	ctx := context.Background()
+
+	if secrets.DB.Endpoint == "" {
+		return connectLocal(secrets)
 	}
 
-	sqlDB, err := db.DB()
+	cfg, err := config.LoadDefaultConfig(ctx,
+		config.WithRegion(secrets.DB.Region),
+	)
+
 	if err != nil {
-		log.Panic().Err(err).Msg("Error initializing database")
+		l.Debug().Err(err).Msgf("Erro conectando no banco de dados.")
+		return nil, err
 	}
 
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(0)
+	return dynamodb.NewFromConfig(cfg), nil
+}
 
-	return db, nil
+func CreateTableUsers(client *dynamodb.Client, l *zerolog.Logger) error {
+	ctx := context.Background()
+
+	_, err := client.DescribeTable(ctx, &dynamodb.DescribeTableInput{
+		TableName: aws.String("Users"),
+	})
+
+	if err == nil {
+		log.Println("Tabela 'Users' já existe!")
+		return nil
+	}
+
+	_, err = client.CreateTable(ctx, &dynamodb.CreateTableInput{
+		AttributeDefinitions: []types.AttributeDefinition{
+			{
+				AttributeName: aws.String("UserID"),
+				AttributeType: types.ScalarAttributeTypeS,
+			},
+			{
+				AttributeName: aws.String("CreatedAt"),
+				AttributeType: types.ScalarAttributeTypeS,
+			},
+		},
+		KeySchema: []types.KeySchemaElement{
+			{
+				AttributeName: aws.String("UserID"),
+				KeyType:       types.KeyTypeHash,
+			},
+			{
+				AttributeName: aws.String("CreatedAt"),
+				KeyType:       types.KeyTypeRange,
+			},
+		},
+		TableName:   aws.String("Users"),
+		BillingMode: types.BillingModeProvisioned,
+		ProvisionedThroughput: &types.ProvisionedThroughput{
+			ReadCapacityUnits:  aws.Int64(25),
+			WriteCapacityUnits: aws.Int64(25),
+		},
+	})
+	if err != nil {
+		l.Debug().Err(err).Msgf("Erro conectando no banco de dados.")
+		return err
+	}
+	log.Println("Tabela 'Users' criada com sucesso!")
+	return nil
 }

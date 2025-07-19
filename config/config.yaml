@@ -1,19 +1,14 @@
 app:
   name: "Scaffold API"
   version: "1.0.0"
+  lang: "pt_BR"
 
 http:
-  port: "8000"
+  port: "4000"
 
 logger:
   logLevel: "debug"
 
 db:
-  poolMax: 2
-  username: "root"
-  password: "root"
-  dbName: "postgres"
-  host: "localhost"
-  dbPort: 5432
-  sslMode: "disable"
-  timezone: "UTC"
+  region: "eu-west-1"
+  endpoint: ""

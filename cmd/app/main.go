@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/TGPrado/GoScaffoldApi/config"
-	"github.com/TGPrado/GoScaffoldApi/internal/app"
+	"github.com/TGPrado/GuardIA/config"
+	"github.com/TGPrado/GuardIA/internal/app"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

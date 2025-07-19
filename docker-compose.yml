@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  db:
+    image: amazon/dynamodb-local
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    # Adicione estas duas linhas
+    user: "${UID}:${GID}"
+    working_dir: /home/dynamodblocal
+    volumes:
+      - dynamo_data:/home/dynamodblocal/data
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+  api:
+    image: scaffold-api-dev:latest
+    volumes:
+      - ./:/app/
+    ports:
+      - 4000:4000
+    depends_on:
+      - db
+    environment:
+      - AWS_ACCESS_KEY_ID=teste
+      - AWS_SECRET_ACCESS_KEY=teste
+      - AWS_REGION=us-west-1
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - 8001:8001
+    environment:
+      - DYNAMO_ENDPOINT=http://db:8000
+    depends_on:
+      - db
+volumes:
+  dynamo_data:

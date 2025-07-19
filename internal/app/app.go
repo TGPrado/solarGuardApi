@@ -1,16 +1,19 @@
 package app
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/TGPrado/GoScaffoldApi/config"
-	_ "github.com/TGPrado/GoScaffoldApi/docs"
-	v1 "github.com/TGPrado/GoScaffoldApi/internal/routers/v1"
-	"github.com/TGPrado/GoScaffoldApi/pkg/database"
-	"github.com/TGPrado/GoScaffoldApi/pkg/logger"
-	httpServer "github.com/TGPrado/GoScaffoldApi/pkg/server"
+	"github.com/TGPrado/GuardIA/config"
+	_ "github.com/TGPrado/GuardIA/docs"
+	deps "github.com/TGPrado/GuardIA/internal/dependencies"
+	v1 "github.com/TGPrado/GuardIA/internal/routers/v1"
+	db "github.com/TGPrado/GuardIA/pkg/database"
+	"github.com/TGPrado/GuardIA/pkg/logger"
+	httpServer "github.com/TGPrado/GuardIA/pkg/server"
+	cfgValidator "github.com/TGPrado/GuardIA/pkg/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	swaggerFiles "github.com/swaggo/files"
@@ -20,14 +23,31 @@ import (
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
-	db, err := database.InitDB(cfg)
+	clientDB, err := db.NewDynamoClient(cfg, l)
 	if err != nil {
-		l.Panic().Err(err).Msg("Error initializing database")
+		fmt.Printf("Não foi possível criar o cliente do DynamoDB: %v\n", err)
+		return
+	}
+
+	err = db.CreateTableUsers(clientDB, l)
+	if err != nil {
+		fmt.Printf("Não foi possível criar o cliente do DynamoDB: %v\n", err)
+		return
 	}
 
 	handler := gin.Default()
+	validate, translator := cfgValidator.InitializeValidator(cfg.App.Lang)
+
+	deps := &deps.Dependencies{
+		Handler:    handler,
+		Logger:     l,
+		Validator:  validate,
+		Translator: translator,
+		DB:         clientDB,
+	}
+
 	handler.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	v1.NewRouter(handler, l, db)
+	v1.NewRouter(deps)
 
 	httpServer := httpServer.New(handler, httpServer.Port(cfg.HTTP.Port))
 

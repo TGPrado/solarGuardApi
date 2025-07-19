@@ -1,14 +1,14 @@
 package v1
 
 import (
-	controllerV1 "github.com/TGPrado/GoScaffoldApi/internal/controllers/v1"
-	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
-	"gorm.io/gorm"
+	controllerV1 "github.com/TGPrado/GuardIA/internal/controllers/v1"
+	deps "github.com/TGPrado/GuardIA/internal/dependencies"
 )
 
-func NewRouter(r *gin.Engine, l *zerolog.Logger, db *gorm.DB) {
+func NewRouter(deps *deps.Dependencies) {
 	healthController := controllerV1.NewHealthController()
+	userController := controllerV1.NewUserController(deps)
 
-	r.GET("/health", healthController.HealthCheck)
+	deps.Handler.GET("/health", healthController.HealthCheck)
+	deps.Handler.POST("/user", userController.Create)
 }
