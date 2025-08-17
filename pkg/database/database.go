@@ -70,22 +70,14 @@ func CreateTableUsers(client *dynamodb.Client, l *zerolog.Logger) error {
 	_, err = client.CreateTable(ctx, &dynamodb.CreateTableInput{
 		AttributeDefinitions: []types.AttributeDefinition{
 			{
-				AttributeName: aws.String("UserID"),
-				AttributeType: types.ScalarAttributeTypeS,
-			},
-			{
-				AttributeName: aws.String("CreatedAt"),
+				AttributeName: aws.String("Email"),
 				AttributeType: types.ScalarAttributeTypeS,
 			},
 		},
 		KeySchema: []types.KeySchemaElement{
 			{
-				AttributeName: aws.String("UserID"),
+				AttributeName: aws.String("Email"),
 				KeyType:       types.KeyTypeHash,
-			},
-			{
-				AttributeName: aws.String("CreatedAt"),
-				KeyType:       types.KeyTypeRange,
 			},
 		},
 		TableName:   aws.String("Users"),

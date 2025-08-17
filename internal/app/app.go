@@ -16,6 +16,7 @@ import (
 	cfgValidator "github.com/TGPrado/GuardIA/pkg/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	"github.com/stripe/stripe-go/v82"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -44,7 +45,28 @@ func Run(cfg *config.Config) {
 		Validator:  validate,
 		Translator: translator,
 		DB:         clientDB,
+		SolarZ:     cfg.SolarZ,
+		Config:     cfg,
 	}
+
+	handler.Use(func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+		allowOrigin := "https://guardia.solarguardservices.com.br"
+		if origin == "http://localhost:3000" {
+			allowOrigin = "http://localhost:3000"
+		}
+		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PATCH, DELETE, PUT")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
+
+	stripe.Key = cfg.Stripe.SecretKey
 
 	handler.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	v1.NewRouter(deps)

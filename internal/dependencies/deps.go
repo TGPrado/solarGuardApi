@@ -1,6 +1,7 @@
 package deps
 
 import (
+	"github.com/TGPrado/GuardIA/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/gin-gonic/gin"
 	ut "github.com/go-playground/universal-translator"
@@ -15,4 +16,6 @@ type Dependencies struct {
 	DB         *dynamodb.Client
 	Validator  *validator.Validate
 	Translator ut.Translator
+	SolarZ     config.SolarZ
+	Config     *config.Config
 }

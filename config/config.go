@@ -8,16 +8,19 @@ import (
 
 type (
 	Config struct {
-		App  App
-		HTTP HTTP
-		Log  Log
-		DB   DB
+		App    App
+		HTTP   HTTP
+		Log    Log
+		DB     DB
+		SolarZ SolarZ
+		Stripe Stripe
 	}
 
 	App struct {
 		Name    string
 		Version string
 		Lang    string
+		Host    string
 	}
 
 	HTTP struct {
@@ -28,9 +31,20 @@ type (
 		Level string
 	}
 
+	SolarZ struct {
+		Email    string
+		Password string
+	}
+
 	DB struct {
 		Region   string
 		Endpoint string
+	}
+
+	Stripe struct {
+		PubKey        string
+		SecretKey     string
+		WebhookSecret string
 	}
 )
 
@@ -42,8 +56,17 @@ func NewConfig() (*Config, error) {
 	viper.AddConfigPath("config")
 	viper.AutomaticEnv()
 
+	viper.BindEnv("db.host", "DB_HOST")
+
 	viper.BindEnv("database.region", "DB_REGION")
 	viper.BindEnv("database.endpoint", "DB_ENDPOINT")
+
+	viper.BindEnv("solarz.email", "SOLARZ_EMAIL")
+	viper.BindEnv("solarz.password", "SOLARZ_PASSWORD")
+
+	viper.BindEnv("stripe.pubKey", "STRIPE_PUB_KEY")
+	viper.BindEnv("stripe.secretKey", "STRIPE_SECRET_KEY")
+	viper.BindEnv("stripe.webhookSecret", "WEBHOOK_SECRET_STRIPE")
 
 	err := viper.ReadInConfig()
 	if err != nil {

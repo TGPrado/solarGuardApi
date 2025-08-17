@@ -8,7 +8,12 @@ import (
 func NewRouter(deps *deps.Dependencies) {
 	healthController := controllerV1.NewHealthController()
 	userController := controllerV1.NewUserController(deps)
+	paymentsController := controllerV1.NewPaymentsController(deps)
 
 	deps.Handler.GET("/health", healthController.HealthCheck)
-	deps.Handler.POST("/user", userController.Create)
+	deps.Handler.POST("api/user", userController.Create)
+	deps.Handler.GET("api/user/:id", userController.GetPlant)
+	deps.Handler.POST("api/user/:id", userController.CreatePlant)
+
+	deps.Handler.POST("api/webhook", paymentsController.Webhook)
 }

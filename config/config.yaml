@@ -2,6 +2,7 @@ app:
   name: "Scaffold API"
   version: "1.0.0"
   lang: "pt_BR"
+  host: "localhost:4000"
 
 http:
   port: "4000"
@@ -12,3 +13,11 @@ logger:
 db:
   region: "eu-west-1"
   endpoint: ""
+
+stripe:
+  pubKey: ""
+  secretKey: ""
+
+solarz:
+  email: "comercial@solarguardservices.com.br"
+  password: "sgs2024*"
