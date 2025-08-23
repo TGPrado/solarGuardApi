@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 
 	deps "github.com/TGPrado/GuardIA/internal/dependencies"
@@ -11,6 +13,7 @@ import (
 	"github.com/TGPrado/GuardIA/internal/models"
 	repo "github.com/TGPrado/GuardIA/internal/repositories"
 	solarz "github.com/TGPrado/GuardIA/pkg/solarZ"
+	"github.com/stripe/stripe-go/v82"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -24,7 +27,8 @@ type UserUseCase interface {
 	CreateUser(req ent.UserCreateRequest, automaticBrand bool, user models.User) ent.UncreatedUserResponse
 	GetPanelData(idPlant string) ([]solarz.Content, error)
 	UpdateUser(user models.User) error
-	UpdateUserWithSubscription(end time.Time, email string, planName string, subsId string) error
+	GetPanelDataStripe(invoice stripe.Invoice) (int64, int64)
+	UpdateUserWithSubscription(end time.Time, email string, planName string, subsId string, panelId int64, solarZId int64) error
 }
 
 type userUseCase struct {
@@ -140,6 +144,13 @@ func (us userUseCase) CreateAllUserData(req ent.UserCreateRequest, automaticBran
 
 func (us userUseCase) UncreateUser(req ent.UserCreateRequest, automaticBrand bool, user models.User) ent.UncreatedUserResponse {
 	if !automaticBrand || req.Plan == "Plano Premium" {
+		err := us.CreateUserDatabase(req, 0, automaticBrand)
+		if err != nil {
+			return ent.UncreatedUserResponse{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Erro ao realizar o cadastro, por favor, tente novamente mais tarde.",
+			}
+		}
 		// manda msg pro discord
 		return ent.UncreatedUserResponse{
 			StatusCode: http.StatusOK,
@@ -148,7 +159,6 @@ func (us userUseCase) UncreateUser(req ent.UserCreateRequest, automaticBrand boo
 	}
 
 	return us.CreateAllUserData(req, automaticBrand, user)
-
 }
 
 func (us userUseCase) CreateUser(req ent.UserCreateRequest, automaticBrand bool, user models.User) ent.UncreatedUserResponse {
@@ -171,7 +181,29 @@ func (us userUseCase) UpdateUser(user models.User) error {
 	return us.repo.Update(user)
 }
 
-func (us userUseCase) UpdateUserWithSubscription(end time.Time, email string, planName string, subsId string) error {
+func (us userUseCase) GetPanelDataStripe(invoice stripe.Invoice) (int64, int64) {
+	panelId, ok := invoice.Lines.Data[0].Metadata["panelId"]
+	if !ok {
+		return 0, 0
+	}
+
+	panelIdInt, err := strconv.Atoi(panelId)
+	if err != nil {
+		fmt.Println("Erro ao converter:", err)
+		return 0, 0
+	}
+
+	solarZId := invoice.Lines.Data[0].Metadata["solarZId"]
+	solarZIdInt, err := strconv.Atoi(solarZId)
+	if err != nil {
+		fmt.Println("Erro ao converter:", err)
+		return 0, 0
+	}
+
+	return int64(panelIdInt), int64(solarZIdInt)
+}
+
+func (us userUseCase) UpdateUserWithSubscription(end time.Time, email string, planName string, subsId string, panelId int64, solarZId int64) error {
 	model, err := us.repo.GetByEmail(email)
 	if err != nil {
 		return err
@@ -180,6 +212,10 @@ func (us userUseCase) UpdateUserWithSubscription(end time.Time, email string, pl
 	model.Plan.Name = planName
 	model.Plan.RenovationDate = end.Format("02/01/2006 15:04:05")
 	model.Plan.Id = subsId
+	if planName != "Basic" {
+		model.PanelId = panelId
+		model.SolarzId = solarZId
+	}
 
 	err = us.repo.Update(model)
 	if err != nil {

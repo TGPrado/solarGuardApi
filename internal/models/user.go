@@ -14,5 +14,6 @@ type User struct {
 	PassInverter string `dynamodbav:"PassInverter"`
 	PanelId      int64  `dynamodbav:"PanelId"`
 	SolarzId     int64  `dynamodbav:"SolarZId"`
+	Alerts       Alerts `dynamodbav:"Alerts"`
 	Plan         Plan   `dynamodbav:"Plan"`
 }

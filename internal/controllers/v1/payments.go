@@ -61,9 +61,15 @@ func (ps *paymentsController) Webhook(c *gin.Context) {
 			return
 		}
 		end := invoice.Lines.Data[0].Period.End
+
+		var panelId, solarZId int64
 		dataDeVencimento := time.Unix(end, 0)
 		email, planName, subsId := stripelib.GetSubscription(invoice)
-		ps.useCase.UpdateUserWithSubscription(dataDeVencimento, email, planName, subsId)
+		if planName != "Basic" {
+			panelId, solarZId = ps.useCase.GetPanelDataStripe(invoice)
+		}
+
+		ps.useCase.UpdateUserWithSubscription(dataDeVencimento, email, planName, subsId, panelId, solarZId)
 	default:
 		c.Status(http.StatusOK)
 		return
