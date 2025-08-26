@@ -12,6 +12,7 @@ import (
 	ent "github.com/TGPrado/GuardIA/internal/entities"
 	"github.com/TGPrado/GuardIA/internal/models"
 	repo "github.com/TGPrado/GuardIA/internal/repositories"
+	"github.com/TGPrado/GuardIA/pkg/discord"
 	solarz "github.com/TGPrado/GuardIA/pkg/solarZ"
 	"github.com/stripe/stripe-go/v82"
 	"golang.org/x/text/cases"
@@ -135,6 +136,7 @@ func (us userUseCase) CreateAllUserData(req ent.UserCreateRequest, automaticBran
 	}
 	_ = us.CreateUserDatabase(req, solarZId, automaticBrand)
 
+	discord.SendMessageNewUser(req, us.deps)
 	return ent.UncreatedUserResponse{
 		StatusCode: http.StatusCreated,
 		Message:    "Cadastro realizado, você será redirecionado para escolher qual seu painel solar.",
@@ -151,7 +153,8 @@ func (us userUseCase) UncreateUser(req ent.UserCreateRequest, automaticBrand boo
 				Message:    "Erro ao realizar o cadastro, por favor, tente novamente mais tarde.",
 			}
 		}
-		// manda msg pro discord
+
+		discord.SendMessageNewUser(req, us.deps)
 		return ent.UncreatedUserResponse{
 			StatusCode: http.StatusOK,
 			Message:    "Cadastro realizado, por favor, aguarde um de nossos especialistas entrar em contato",

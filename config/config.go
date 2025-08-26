@@ -8,12 +8,13 @@ import (
 
 type (
 	Config struct {
-		App    App
-		HTTP   HTTP
-		Log    Log
-		DB     DB
-		SolarZ SolarZ
-		Stripe Stripe
+		App     App
+		HTTP    HTTP
+		Log     Log
+		DB      DB
+		SolarZ  SolarZ
+		Stripe  Stripe
+		Discord Discord
 	}
 
 	App struct {
@@ -46,6 +47,10 @@ type (
 		SecretKey     string
 		WebhookSecret string
 	}
+
+	Discord struct {
+		Webhook string
+	}
 )
 
 func NewConfig() (*Config, error) {
@@ -67,6 +72,8 @@ func NewConfig() (*Config, error) {
 	viper.BindEnv("stripe.pubKey", "STRIPE_PUB_KEY")
 	viper.BindEnv("stripe.secretKey", "STRIPE_SECRET_KEY")
 	viper.BindEnv("stripe.webhookSecret", "WEBHOOK_SECRET_STRIPE")
+
+	viper.BindEnv("discord.webhook", "DISCORD_WEBHOOK")
 
 	err := viper.ReadInConfig()
 	if err != nil {
