@@ -29,11 +29,12 @@ func Run(cfg *config.Config) {
 		fmt.Printf("Não foi possível criar o cliente do DynamoDB: %v\n", err)
 		return
 	}
-
-	err = db.CreateTableUsers(clientDB, l)
-	if err != nil {
-		fmt.Printf("Não foi possível criar o cliente do DynamoDB: %v\n", err)
-		return
+	if cfg.App.Environment == "dev" {
+		err = db.CreateTableUsers(clientDB, l)
+		if err != nil {
+			fmt.Printf("Não foi possível criar o cliente do DynamoDB: %v\n", err)
+			return
+		}
 	}
 
 	handler := gin.Default()

@@ -3,6 +3,7 @@ app:
   version: "1.0.0"
   lang: "pt_BR"
   host: "localhost:4000"
+  environment: dev
 
 http:
   port: "4000"

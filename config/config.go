@@ -18,10 +18,11 @@ type (
 	}
 
 	App struct {
-		Name    string
-		Version string
-		Lang    string
-		Host    string
+		Name        string
+		Version     string
+		Lang        string
+		Host        string
+		Environment string
 	}
 
 	HTTP struct {
@@ -72,6 +73,8 @@ func NewConfig() (*Config, error) {
 	viper.BindEnv("stripe.pubKey", "STRIPE_PUB_KEY")
 	viper.BindEnv("stripe.secretKey", "STRIPE_SECRET_KEY")
 	viper.BindEnv("stripe.webhookSecret", "WEBHOOK_SECRET_STRIPE")
+
+	viper.BindEnv("app.environment", "ENVIRONMENT")
 
 	viper.BindEnv("discord.webhook", "DISCORD_WEBHOOK")
 
