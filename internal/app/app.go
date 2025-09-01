@@ -23,7 +23,7 @@ import (
 
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
-
+	fmt.Println(cfg.DB.Region)
 	clientDB, err := db.NewDynamoClient(cfg, l)
 	if err != nil {
 		fmt.Printf("Não foi possível criar o cliente do DynamoDB: %v\n", err)
