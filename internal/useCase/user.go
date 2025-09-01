@@ -136,7 +136,6 @@ func (us userUseCase) CreateAllUserData(req ent.UserCreateRequest, automaticBran
 	}
 	_ = us.CreateUserDatabase(req, solarZId, automaticBrand)
 
-	discord.SendMessageNewUser(req, us.deps)
 	return ent.UncreatedUserResponse{
 		StatusCode: http.StatusCreated,
 		Message:    "Cadastro realizado, você será redirecionado para escolher qual seu painel solar.",

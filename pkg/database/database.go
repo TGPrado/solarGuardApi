@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-func connectLocal(secrets *secrets.Config) (*dynamodb.Client, error) {
+func connect(secrets *secrets.Config) (*dynamodb.Client, error) {
 	if secrets.App.Environment != "dev" {
 		cfg, err := config.LoadDefaultConfig(context.TODO(),
 			config.WithRegion(secrets.DB.Region),
@@ -51,7 +51,7 @@ func NewDynamoClient(secrets *secrets.Config, l *zerolog.Logger) (*dynamodb.Clie
 	ctx := context.Background()
 
 	if secrets.DB.Endpoint == "" {
-		return connectLocal(secrets)
+		return connect(secrets)
 	}
 
 	cfg, err := config.LoadDefaultConfig(ctx,
