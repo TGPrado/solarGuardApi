@@ -16,6 +16,17 @@ import (
 )
 
 func connectLocal(secrets *secrets.Config) (*dynamodb.Client, error) {
+	if secrets.App.Environment != "dev" {
+		cfg, err := config.LoadDefaultConfig(context.TODO(),
+			config.WithRegion(secrets.DB.Region),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("erro ao carregar configuração do SDK: %w", err)
+		}
+
+		return dynamodb.NewFromConfig(cfg), nil
+	}
+
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(secrets.DB.Region),
 		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
