@@ -64,8 +64,8 @@ func NewConfig() (*Config, error) {
 
 	viper.BindEnv("db.host", "DB_HOST")
 
-	viper.BindEnv("database.region", "AWS_REGION")
-	viper.BindEnv("database.endpoint", "DB_ENDPOINT")
+	viper.BindEnv("db.region", "AWS_REGION")
+	viper.BindEnv("db.endpoint", "DB_ENDPOINT")
 
 	viper.BindEnv("solarz.email", "SOLARZ_EMAIL")
 	viper.BindEnv("solarz.password", "SOLARZ_PASSWORD")
