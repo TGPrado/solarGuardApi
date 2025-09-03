@@ -54,11 +54,13 @@ func GetPlants(id string, configSolarZ config.SolarZ) ([]Content, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Println(err)
 		return []Content{}, errors.New("error getting token solarZ")
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Println(err)
 		return []Content{}, err
 	}
 
@@ -101,6 +103,7 @@ func CreatePlant(id string, plantId int64, configSolarZ config.SolarZ) error {
 		bytes.NewBuffer(jsonData),
 	)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -108,6 +111,7 @@ func CreatePlant(id string, plantId int64, configSolarZ config.SolarZ) error {
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 	defer resp.Body.Close()

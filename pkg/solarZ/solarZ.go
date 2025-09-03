@@ -27,12 +27,14 @@ func getToken(solarZ config.SolarZ) (string, string, error) {
 	client := &http.Client{Jar: jar}
 	req, err := http.NewRequest("POST", "https://app.solarz.com.br/login", bytes.NewBufferString(form.Encode()))
 	if err != nil {
+		fmt.Println(err)
 		return "", "", err
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := client.Do(req)
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -43,6 +45,7 @@ func getToken(solarZ config.SolarZ) (string, string, error) {
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Println(err)
 		return "", "", err
 	}
 	body := string(bodyBytes)
@@ -78,6 +81,7 @@ func RegisterPanel(req ent.UserCreateRequest, solarZ config.SolarZ) (int64, erro
 		strings.NewReader(bodyBase.Encode()),
 	)
 	if err != nil {
+		fmt.Println(err)
 		return 0, errors.New("Erro encontrado, tente novamente mais tarde.")
 	}
 
@@ -87,6 +91,7 @@ func RegisterPanel(req ent.UserCreateRequest, solarZ config.SolarZ) (int64, erro
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
+		fmt.Println(err)
 		return 0, errors.New("Erro encontrado, tente novamente mais tarde.")
 	}
 	defer resp.Body.Close()
