@@ -39,18 +39,21 @@ func sendMessageWebHook(message string, deps *deps.Dependencies) error {
 
 func SendMessageNewUser(req ent.UserCreateRequest, deps *deps.Dependencies) error {
 	message := fmt.Sprintf(
-		"Usuário premium criado, favor criar a fatura na stripe e a conta no solarZ.\n"+
+		"Usuário criado, favor criar a fatura na stripe e a conta no solarZ.\n"+
 			"Email: %s\n"+
 			"Phone: %s\n"+
-			"Número de painéis: %s\n"+
-			"Pot. Instalada:%s\n"+
-			"Brand: %s\n"+
+			"Número de painéis: %d\n"+
+			"Pot. Instalada:%d\n"+
+			"Marca: %s\n"+
+			"Tipo de plano: %s"+
 			"User Inverter: %s\n"+
-			"Pass Inverter: %s",
+			"Pass Inverter: %s\n",
 		req.Email,
 		req.Phone,
 		req.PanelNumber,
+		req.PotInstalled,
 		req.Brand,
+		req.Plan,
 		req.UserInverter,
 		req.PassInverter,
 	)
