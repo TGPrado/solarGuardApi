@@ -156,7 +156,11 @@ func (us *userController) CreatePlant(c *gin.Context) {
 		return
 	}
 
-	user.SolarzId = req.PlantId
+	user.SolarzId, err = solarz.GetUsinaId(user.PanelId, us.deps.SolarZ)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Erro encontrado, tente novamente mais tarde."})
+		return
+	}
 
 	err = us.useCase.UpdateUser(user)
 	if err != nil {
